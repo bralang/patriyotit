@@ -1,0 +1,172 @@
+'use client';
+import { useState } from 'react';
+import type { Project, Status } from '@/lib/types';
+import { useApp } from '@/context/AppContext';
+import { setProjectStatus, archiveProject, duplicateProject, deleteProject } from '@/lib/projects';
+import { logActivity } from '@/lib/activity';
+import { getUrgency, formatEventDate, linkifyContact, getStatusStyle } from '@/lib/utils';
+import StagesTable from './StagesTable';
+import HebrewDate from './HebrewDate';
+
+interface Props {
+  project: Project;
+  onEdit: (id: number) => void;
+  onUpdate: () => void;
+}
+
+export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
+  const { settings, currentWorker } = useApp();
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
+
+  const isMe = currentWorker && project.workers?.some(w => w.id === currentWorker.id);
+  const isLocked = project.status?.name.includes('ננעל');
+  const urgency = getUrgency(project.event_date ?? null);
+  const doneCount = (project.stages ?? []).filter(s => s.done).length;
+  const pct = Math.round((doneCount / 7) * 100);
+
+  async function handleQuickStatus(status: Status) {
+    const wasLocked = isLocked;
+    await setProjectStatus(project.id, status.id);
+    if (status.name.includes('ננעל') && !wasLocked) {
+      showLockToast(project.name);
+    }
+    if (currentWorker) logActivity(`🔄 שינוי סטטוס ל-${status.name}`, project.name, currentWorker.id);
+    setStatusDropdownOpen(false);
+    onUpdate();
+  }
+
+  async function handleDelete() {
+    if (!confirm('למחוק את הפרויקט?')) return;
+    if (currentWorker) logActivity('🗑️ מחיקת פרויקט', project.name, currentWorker.id);
+    await deleteProject(project.id);
+    onUpdate();
+  }
+
+  async function handleDuplicate() {
+    if (currentWorker) logActivity('📋 שכפול פרויקט', project.name + ' (עותק)', currentWorker.id);
+    await duplicateProject(project.id);
+    onUpdate();
+  }
+
+  async function handleArchive() {
+    if (currentWorker) logActivity('🗄️ הועבר לארכיון', project.name, currentWorker.id);
+    await archiveProject(project.id, true);
+    onUpdate();
+  }
+
+  const statusStyle = getStatusStyle(project.status, settings.statuses);
+  const eventDateDisplay = project.event_date && !urgency ? (
+    <span className="event-date-label">📅 {formatEventDate(project.event_date)}<HebrewDate date={project.event_date} /></span>
+  ) : null;
+
+  return (
+    <div className={`card${isMe ? ' mine' : ''}${isLocked ? ' locked' : ''}`}>
+      <div className="card-top">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <div className="card-name">{project.name}</div>
+          {isLocked && <span className="locked-banner">🔒 ננעל</span>}
+          {urgency && <span className={`urgency-${urgency.level}`}>{urgency.label}<HebrewDate date={project.event_date} /></span>}
+          {project.package && <span className="badge badge-package">{project.package.name}</span>}
+          {eventDateDisplay}
+        </div>
+        <div className="card-right">
+          <div className="badges">
+            {project.type && <span className="badge badge-type">{project.type.name}</span>}
+            <div className="badge-wrap" onClick={() => setStatusDropdownOpen(v => !v)}>
+              {project.status ? (
+                <span
+                  className="badge"
+                  style={statusStyle ? { background: statusStyle.bg, color: statusStyle.color } : {}}
+                >
+                  {project.status.name}
+                </span>
+              ) : (
+                <span className="badge badge-none">—</span>
+              )}
+              {statusDropdownOpen && (
+                <div className="status-dropdown">
+                  {settings.statuses.map(s => (
+                    <button key={s.id} onClick={e => { e.stopPropagation(); handleQuickStatus(s); }}>
+                      {s.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="card-actions">
+            <button className="btn-edit" onClick={() => onEdit(project.id)}>✏️ עריכה</button>
+            <button className="btn-edit" onClick={handleDuplicate} title="שכפול">📋</button>
+            {isLocked && (
+              <button className="btn-edit" onClick={handleArchive} title="העבר לארכיון" style={{ color: '#888', borderColor: '#ccc' }}>🗄️</button>
+            )}
+            <button className="btn-delete" onClick={handleDelete}>🗑️</button>
+          </div>
+        </div>
+      </div>
+
+      <div className="card-meta">
+        {project.client && (
+          <div className="meta-item">🏢 <strong>{project.client.school_name}</strong>
+            {project.client.city && <span style={{ color: '#888' }}> · {project.client.city}</span>}
+          </div>
+        )}
+        {project.client?.contact_name && (
+          <div className="meta-item">👤 {project.client.contact_name}
+            {project.client.phone && <span> · {project.client.phone}</span>}
+            {project.client.email && (
+              <a href={`mailto:${project.client.email}`} style={{ color: '#4A7DFF', textDecoration: 'none', borderBottom: '1px solid #8FB3FF', marginRight: 4 }}>
+                {project.client.email}
+              </a>
+            )}
+          </div>
+        )}
+        {project.contact2 && (
+          <div className="meta-item" dangerouslySetInnerHTML={{ __html: '👥 ' + linkifyContact(project.contact2) }} />
+        )}
+        {project.workers && project.workers.length > 0 && (
+          <div className="meta-item">
+            ✏️ {project.workers.map(w => (
+              <span key={w.id} className={`worker-badge${currentWorker?.id === w.id ? ' me' : ''}`}>{w.name}</span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="progress-wrap">
+        <div className="progress-bar-bg">
+          <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
+        </div>
+        <div className="progress-label">{doneCount}/7 שלבים הושלמו{pct === 100 ? ' ✅' : ''}</div>
+      </div>
+
+      {project.notes && (
+        <div style={{ fontSize: 13, color: '#666', marginBottom: 10, padding: '8px 10px', background: '#fafaf8', borderRadius: 7 }}>
+          {project.notes}
+        </div>
+      )}
+
+      {(project.drive_url || project.instructions_url || project.template_url) && (
+        <div className="card-links">
+          {project.drive_url && <a href={project.drive_url} className="link-btn" target="_blank" rel="noreferrer">📁 תיקיית דרייב</a>}
+          {project.instructions_url && <a href={project.instructions_url} className="link-btn" target="_blank" rel="noreferrer">📄 הוראות</a>}
+          {project.template_url && <a href={project.template_url} className="link-btn" target="_blank" rel="noreferrer">📋 קובץ דפוס</a>}
+        </div>
+      )}
+
+      <StagesTable project={project} onUpdate={onUpdate} />
+    </div>
+  );
+}
+
+function showLockToast(name: string) {
+  const toast = document.createElement('div');
+  toast.className = 'lock-toast';
+  toast.textContent = `🔒 פטריוטי ליצור פרויקט, ועוד יותר פטריוטי לנעול אותו. ברכות לסיום! 🎉`;
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add('show'));
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 400);
+  }, 3500);
+}
