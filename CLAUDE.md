@@ -4,6 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 @AGENTS.md
 
+## Deployment Rule
+
+**IMPORTANT:** Whenever the user asks to deploy, upload, or push the project to the website (any phrasing like "תעלה לאתר", "פרסם", "deploy", "push to production", etc.), you MUST:
+1. Stage all changed files with `git add`
+2. Create a commit with a descriptive message summarizing the changes
+3. Push to the remote with `git push`
+
+Do this automatically without asking for confirmation — commit and push are implied by any deploy/upload request.
+
+The remote is: https://github.com/bralang/patriyotit.git (branch: master)
+
 ## Commands
 
 ```bash

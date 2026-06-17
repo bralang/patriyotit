@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Client } from '@/lib/types';
 import { useApp } from '@/context/AppContext';
 import { saveProject } from '@/lib/projects';
@@ -33,6 +33,21 @@ export default function ProjectModal({ projectId, open, onClose, onSave }: Props
   const [selectedWorkerIds, setSelectedWorkerIds] = useState<number[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [clientModalOpen, setClientModalOpen] = useState(false);
+  const [clientSearch, setClientSearch] = useState('');
+  const [clientDropdownOpen, setClientDropdownOpen] = useState(false);
+  const clientDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!clientDropdownOpen) return;
+    function handleOutsideClick(e: MouseEvent) {
+      if (clientDropdownRef.current && !clientDropdownRef.current.contains(e.target as Node)) {
+        setClientDropdownOpen(false);
+        setClientSearch('');
+      }
+    }
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [clientDropdownOpen]);
 
   useEffect(() => {
     if (!open) return;
@@ -109,21 +124,73 @@ export default function ProjectModal({ projectId, open, onClose, onSave }: Props
           </div>
           <div className="form-field full">
             <label>לקוח</label>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <select value={clientId} onChange={e => setClientId(e.target.value ? Number(e.target.value) : '')} style={{ flex: 1 }}>
-                <option value="">בחרי לקוח...</option>
-                {clients.map(c => (
-                  <option key={c.id} value={c.id}>{c.school_name}{c.city ? ` — ${c.city}` : ''}</option>
-                ))}
-              </select>
+            <div style={{ position: 'relative' }} ref={clientDropdownRef}>
               <button
                 type="button"
-                className="btn-add-item"
-                onClick={() => setClientModalOpen(true)}
-                style={{ whiteSpace: 'nowrap', flex: 'none' }}
+                onClick={() => { setClientDropdownOpen(o => !o); setClientSearch(''); }}
+                style={{
+                  width: '100%', textAlign: 'right', cursor: 'pointer',
+                  padding: '6px 10px', border: '1px solid #d1d5db', borderRadius: 6,
+                  background: 'white', fontSize: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  color: clientId ? 'inherit' : '#9ca3af',
+                }}
               >
-                + לקוח חדש
+                <span>{clients.find(c => c.id === clientId)
+                  ? `${clients.find(c => c.id === clientId)!.school_name}${clients.find(c => c.id === clientId)!.city ? ` — ${clients.find(c => c.id === clientId)!.city}` : ''}`
+                  : 'בחרי לקוח...'}</span>
+                <span style={{ fontSize: 10, color: '#6b7280' }}>▾</span>
               </button>
+              {clientDropdownOpen && (
+                <div style={{
+                  position: 'absolute', top: 'calc(100% + 2px)', right: 0, left: 0,
+                  zIndex: 9999, background: 'white', border: '1px solid #d1d5db',
+                  borderRadius: 6, boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+                  maxHeight: 280, overflowY: 'auto',
+                }}>
+                  <div style={{ padding: 8, borderBottom: '1px solid #f0f0f0', position: 'sticky', top: 0, background: 'white' }}>
+                    <input
+                      autoFocus
+                      placeholder="חיפוש לקוח..."
+                      value={clientSearch}
+                      onChange={e => setClientSearch(e.target.value)}
+                      style={{ width: '100%', boxSizing: 'border-box', padding: '5px 8px', border: '1px solid #e5e7eb', borderRadius: 4, fontSize: 13 }}
+                      onClick={e => e.stopPropagation()}
+                    />
+                  </div>
+                  <div
+                    onMouseDown={() => { setClientModalOpen(true); setClientDropdownOpen(false); setClientSearch(''); }}
+                    style={{ padding: '9px 12px', cursor: 'pointer', color: '#2563eb', fontWeight: 600, fontSize: 13, borderBottom: '1px solid #f0f0f0' }}
+                  >
+                    + לקוח חדש
+                  </div>
+                  {clientId !== '' && (
+                    <div
+                      onMouseDown={() => { setClientId(''); setClientDropdownOpen(false); setClientSearch(''); }}
+                      style={{ padding: '9px 12px', cursor: 'pointer', color: '#6b7280', fontSize: 13, borderBottom: '1px solid #f0f0f0' }}
+                    >
+                      ללא לקוח
+                    </div>
+                  )}
+                  {clients
+                    .filter(c => !clientSearch || c.school_name.includes(clientSearch) || (c.city ?? '').includes(clientSearch))
+                    .map(c => (
+                      <div
+                        key={c.id}
+                        onMouseDown={() => { setClientId(c.id); setClientDropdownOpen(false); setClientSearch(''); }}
+                        style={{
+                          padding: '9px 12px', cursor: 'pointer', fontSize: 13,
+                          background: clientId === c.id ? '#eff6ff' : undefined,
+                          fontWeight: clientId === c.id ? 600 : undefined,
+                        }}
+                      >
+                        {c.school_name}{c.city ? ` — ${c.city}` : ''}
+                      </div>
+                    ))}
+                  {clients.filter(c => !clientSearch || c.school_name.includes(clientSearch) || (c.city ?? '').includes(clientSearch)).length === 0 && (
+                    <div style={{ padding: '9px 12px', color: '#9ca3af', fontSize: 13 }}>לא נמצאו תוצאות</div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
           <div className="form-field full">
