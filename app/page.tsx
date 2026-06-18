@@ -108,39 +108,43 @@ export default function DashboardPage() {
   return (
     <>
       <header>
-        <h1>📋 ניהול פרויקטים</h1>
-        <div className="header-right">
-          <span className="last-updated">{lastSaved}</span>
-          {currentWorker && (
-            <span className="worker-greeting">👋 שלום, {currentWorker.name}</span>
-          )}
+        <div className="header-row header-row-top">
+          <h1>📋 ניהול פרויקטים</h1>
+          <div className="header-right">
+            <span className="last-updated">{lastSaved}</span>
+            {currentWorker && (
+              <span className="worker-greeting">👋 שלום, {currentWorker.name}</span>
+            )}
+            <Link href="/clients" className="btn-settings" style={{ textDecoration: 'none', color: '#555' }}>👥 לקוחות</Link>
+            {currentWorker && (
+              <button
+                onClick={() => setShowMine(v => !v)}
+                className="btn-settings"
+                style={{
+                  border: '1px solid #EF32FF',
+                  background: showMine ? '#EF32FF' : '#FCE0FF',
+                  color: showMine ? '#fff' : '#B000C0',
+                }}
+              >
+                ✨ הפרויקטים שלי
+              </button>
+            )}
+            <button className="btn-settings" onClick={() => setSettingsOpen(true)}>⚙️ הגדרות</button>
+            <button className="btn-settings" onClick={toggleDark}>{darkMode ? '☀️' : '🌙'}</button>
+            <button className="btn-logout" onClick={handleLogout}>יציאה</button>
+          </div>
+        </div>
+        <div className="header-row header-row-bottom">
           <div className="view-toggle">
             <button className={`view-btn${view === 'cards' ? ' active' : ''}`} onClick={() => setView('cards')} title="כרטיסיות">▦</button>
             <button className={`view-btn${view === 'table' ? ' active' : ''}`} onClick={() => setView('table')} title="טבלה">☰</button>
             <button className={`view-btn${view === 'cal' ? ' active' : ''}`} onClick={() => { setView('cal'); setCalOpen(true); }} title="לוח שנה">📅</button>
             <button className={`view-btn${view === 'archive' ? ' active' : ''}`} onClick={() => setView('archive')} title="ארכיון">🗄️</button>
           </div>
-          <Link href="/clients" className="btn-settings" style={{ textDecoration: 'none', color: '#555' }}>👥 לקוחות</Link>
-          {currentWorker && (
-            <button
-              onClick={() => setShowMine(v => !v)}
-              className="btn-settings"
-              style={{
-                border: '1px solid #EF32FF',
-                background: showMine ? '#EF32FF' : '#FCE0FF',
-                color: showMine ? '#fff' : '#B000C0',
-              }}
-            >
-              ✨ הפרויקטים שלי
-            </button>
-          )}
           <button className="btn-settings" style={{ color: '#0A6640', borderColor: '#32FF9D' }} onClick={handleExcel}>⬇️ Excel</button>
           <button className="btn-settings" style={{ color: '#32FF9D', borderColor: '#32FF9D' }} onClick={() => setReportOpen(true)}>📊 דוח</button>
           <button className="btn-settings" onClick={() => setLogOpen(true)}>📜 פעילות</button>
           <button className="btn-add" onClick={() => { setEditId(null); setProjectModalOpen(true); }}>+ פרויקט חדש</button>
-          <button className="btn-settings" onClick={() => setSettingsOpen(true)}>⚙️ הגדרות</button>
-          <button className="btn-settings" onClick={toggleDark}>{darkMode ? '☀️' : '🌙'}</button>
-          <button className="btn-logout" onClick={handleLogout}>יציאה</button>
         </div>
       </header>
 
