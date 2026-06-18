@@ -21,6 +21,7 @@ header h1{font-size:18px;font-weight:600}
 .btn-logout{font-size:12px;color:#888;cursor:pointer;background:none;border:1px solid #ddd;padding:6px 12px;border-radius:7px}
 .btn-logout:hover{background:#f0f0e8}
 .last-updated{font-size:11px;color:#aaa}
+.worker-greeting{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600;color:#4A7DFF;background:#EBF1FF;border:1px solid #c5d8ff;border-radius:20px;padding:4px 12px;white-space:nowrap}
 
 .container{max-width:1100px;margin:0 auto;padding:20px 16px}
 
@@ -247,6 +248,8 @@ body.dark .client-card{background:#1a1f2e;border-color:#1e2a40}
 
 /* INVITE WORKER */
 .worker-email-label{font-size:11px;color:#888;flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 6px}
+.btn-link-me{font-size:11px;padding:2px 8px;border-radius:5px;border:1px solid #4A7DFF;background:#EBF1FF;color:#4A7DFF;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.btn-link-me:hover{background:#4A7DFF;color:#fff}
 .invite-worker-form{display:flex;flex-direction:column;gap:8px;margin-top:12px;padding-top:12px;border-top:1px dashed #dce6ff}
 .invite-worker-form input{width:100%;height:36px;padding:0 10px;font-size:13px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#1a1a1a;outline:none;font-family:inherit}
 .invite-worker-form input:focus{border-color:#4A7DFF}

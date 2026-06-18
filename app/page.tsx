@@ -112,7 +112,7 @@ export default function DashboardPage() {
         <div className="header-right">
           <span className="last-updated">{lastSaved}</span>
           {currentWorker && (
-            <span style={{ fontSize: 13, color: '#4A7DFF', fontWeight: 500 }}>שלום, {currentWorker.name} 👋</span>
+            <span className="worker-greeting">👋 שלום, {currentWorker.name}</span>
           )}
           <div className="view-toggle">
             <button className={`view-btn${view === 'cards' ? ' active' : ''}`} onClick={() => setView('cards')} title="כרטיסיות">▦</button>
