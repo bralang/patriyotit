@@ -17,6 +17,7 @@ interface Props {
 export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
   const { settings, currentWorker } = useApp();
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
+  const [stagesOpen, setStagesOpen] = useState(false);
 
   const isMe = currentWorker && project.workers?.some(w => w.id === currentWorker.id);
   const isLocked = project.status?.name.includes('ננעל');
@@ -154,7 +155,21 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
         </div>
       )}
 
-      <StagesTable project={project} onUpdate={onUpdate} />
+      <button
+        className="stages-toggle-btn"
+        onClick={() => setStagesOpen(v => !v)}
+        aria-expanded={stagesOpen}
+      >
+        <span>{stagesOpen ? '▲' : '▼'}</span>
+        <span>שלבים ומעקב זמן</span>
+        {!stagesOpen && (
+          <span className="stages-toggle-hint">{doneCount}/7 הושלמו</span>
+        )}
+      </button>
+
+      <div className={`stages-collapsible${stagesOpen ? ' open' : ''}`}>
+        <StagesTable project={project} onUpdate={onUpdate} />
+      </div>
     </div>
   );
 }

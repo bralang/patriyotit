@@ -100,8 +100,16 @@ header h1{font-size:18px;font-weight:600}
 .worker-badge.me{background:#FCE0FF;color:#B000C0;font-weight:700}
 .badge-package{background:#C0FFE4;color:#0A6640}
 
+/* STAGES TOGGLE */
+.stages-toggle-btn{display:flex;align-items:center;gap:7px;width:100%;background:none;border:none;border-top:1px solid #eef2ff;padding:8px 2px 4px;cursor:pointer;font-size:12px;font-weight:600;color:#8aA0cc;letter-spacing:.3px;margin-top:10px;text-align:right;transition:color .15s}
+.stages-toggle-btn:hover{color:#4A7DFF}
+.stages-toggle-btn span:first-child{font-size:10px;opacity:.7}
+.stages-toggle-hint{margin-right:auto;font-size:11px;color:#bbb;font-weight:400}
+.stages-collapsible{overflow:hidden;max-height:0;opacity:0;transition:max-height .3s ease,opacity .25s ease}
+.stages-collapsible.open{max-height:2000px;opacity:1}
+
 /* STAGES */
-.stages-section{margin-top:12px;border-top:1px solid #eef2ff;padding-top:10px}
+.stages-section{margin-top:4px;padding-top:6px}
 .stages-table{width:100%;border-collapse:collapse;font-size:12px}
 .stages-table th{text-align:right;font-weight:600;color:#888;padding:4px 6px;border-bottom:1px solid #eef2ff;font-size:11px;white-space:nowrap}
 .stages-table td{padding:5px 6px;border-bottom:1px solid #f4f6ff;vertical-align:middle}
@@ -221,6 +229,8 @@ body.dark .stat{background:#1a1f2e;border-color:#1e2a40}
 body.dark .filters input,body.dark .filters select{background:#1a1f2e;color:#e0e6f0;border-color:#1e2a40}
 body.dark .stages-table td{border-color:#1e2a40}
 body.dark .stages-table th{border-color:#1e2a40;color:#7a99cc}
+body.dark .stages-toggle-btn{border-top-color:#1e2a40;color:#5a80b0}
+body.dark .stages-toggle-btn:hover{color:#8FB3FF}
 body.dark .stage-name-cell{color:#c8d8f0}
 body.dark .link-btn{background:#141824;border-color:#1e2a40;color:#8FB3FF}
 body.dark .modal-overlay{background:rgba(0,0,0,.7)}
