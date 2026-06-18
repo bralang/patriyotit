@@ -8,6 +8,7 @@ CREATE TABLE workers (
   id SERIAL PRIMARY KEY,
   name TEXT NOT NULL,
   email TEXT UNIQUE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   sort_order INTEGER NOT NULL DEFAULT 0
 );
 
@@ -15,10 +16,11 @@ CREATE TABLE workers (
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.workers (name, email, sort_order)
+  INSERT INTO public.workers (name, email, user_id, sort_order)
   VALUES (
     COALESCE(NEW.raw_user_meta_data->>'name', split_part(NEW.email, '@', 1)),
     NEW.email,
+    NEW.id,
     (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM public.workers)
   );
   RETURN NEW;

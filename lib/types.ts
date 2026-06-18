@@ -2,6 +2,7 @@ export type Worker = {
   id: number;
   name: string;
   email: string | null;
+  user_id: string | null;
   sort_order: number;
 };
 

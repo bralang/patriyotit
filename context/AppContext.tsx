@@ -60,8 +60,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         await checkAutoArchive(p);
         setProjects(p);
         setSettings(s);
-        if (user?.email) {
-          const w = s.workers.find(w => w.email === user.email) ?? null;
+        if (user?.id) {
+          const w = s.workers.find(w => w.user_id === user.id) ?? null;
           setCurrentWorker(w);
         }
       } catch (err) {

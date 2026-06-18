@@ -2,8 +2,7 @@
 import { useEffect, useState } from 'react';
 import type { Status, ProjectType, Worker, Package } from '@/lib/types';
 import { useApp } from '@/context/AppContext';
-import { saveSettings, updateWorkerNames, deleteWorker, linkWorkerToEmail } from '@/lib/settings';
-import { createClient } from '@/lib/supabase';
+import { saveSettings, updateWorkerNames, deleteWorker } from '@/lib/settings';
 
 interface Props {
   open: boolean;
@@ -47,15 +46,6 @@ export default function SettingsModal({ open, onClose }: Props) {
     ]);
     setSettings({ ...newSettings, workers: namedWorkers });
     onClose();
-  }
-
-  async function handleLinkMe(worker: Worker) {
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user?.email) return;
-    if (!confirm(`לקשר את "${worker.name}" לחשבון שלך (${user.email})?`)) return;
-    await linkWorkerToEmail(worker.id, user.email);
-    await refresh();
   }
 
   async function handleRemoveWorker(worker: Worker, idx: number) {
@@ -152,10 +142,9 @@ export default function SettingsModal({ open, onClose }: Props) {
                   value={worker.name}
                   onChange={e => updateName(setWorkers, i, e.target.value)}
                 />
-                {worker.email
-                  ? <span className="worker-email-label" dir="ltr">{worker.email}</span>
-                  : <button className="btn-link-me" onClick={() => handleLinkMe(worker)} title="קשרי את חשבון הסופאבייס שלך לעובדת זו">זה אני</button>
-                }
+                {worker.email && (
+                  <span className="worker-email-label" dir="ltr">{worker.email}</span>
+                )}
                 <button className="btn-remove" onClick={() => handleRemoveWorker(worker, i)}>×</button>
               </div>
             ))}

@@ -26,12 +26,6 @@ export async function saveSettings(settings: Omit<Settings, 'workers'>): Promise
   ]);
 }
 
-export async function linkWorkerToEmail(workerId: number, email: string): Promise<void> {
-  const supabase = createClient();
-  const { error } = await supabase.from('workers').update({ email }).eq('id', workerId);
-  if (error) throw error;
-}
-
 // Updates only name + sort_order for existing workers — never touches email
 export async function updateWorkerNames(workers: Worker[]): Promise<void> {
   const supabase = createClient();
