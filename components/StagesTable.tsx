@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import type { Project, ProjectStage } from '@/lib/types';
-import { WORK_STAGES } from '@/lib/types';
+import { WORK_STAGES, MAILING_TYPE_NAME } from '@/lib/types';
 import { useApp } from '@/context/AppContext';
 import { toggleStageDone, updateStageField, upsertWorkerTime } from '@/lib/stages';
 import { setProjectStatus } from '@/lib/projects';
@@ -67,8 +67,9 @@ export default function StagesTable({ project, onUpdate }: Props) {
 
   async function handleStageDone(stage: ProjectStage, done: boolean) {
     await toggleStageDone(stage.id, done);
-    // Advance status when completing a stage
-    if (done && settings.statuses.length && project.status_id !== null) {
+    // Advance status when completing a stage (not for mailing projects)
+    const isMailing = project.type?.name === MAILING_TYPE_NAME;
+    if (!isMailing && done && settings.statuses.length && project.status_id !== null) {
       const idx = settings.statuses.findIndex(s => s.id === project.status_id);
       const next = settings.statuses[idx + 1];
       if (next && !next.name.includes('ננעל')) {
