@@ -94,7 +94,10 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
               )}
               {statusDropdownOpen && (
                 <div className="status-dropdown">
-                  {settings.statuses.map(s => (
+                  {(isMailing
+                    ? settings.statuses.filter(s => s.name.includes('ננעל') || ['יצירת הדמיות','כתיבה','בדיקה','תזמון'].includes(s.name))
+                    : settings.statuses
+                  ).map(s => (
                     <button key={s.id} onClick={e => { e.stopPropagation(); handleQuickStatus(s); }}>
                       {s.name}
                     </button>
