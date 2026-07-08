@@ -1,45 +1,48 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Project } from '@/lib/types';
-import {
-  STATION_DEFS,
-  RetentionStation,
-  getRetentionStations,
-  toggleRetentionStation,
-  updateRetentionNote,
-  formatDueDate,
-} from '@/lib/retention';
+import { STATION_DEFS, formatDueDate } from '@/lib/retention';
 
-interface Props {
-  project: Project;
+interface StationState { done: boolean; notes: string }
+
+function loadStations(projectId: number): Record<number, StationState> {
+  try {
+    const raw = localStorage.getItem(`retention_${projectId}`);
+    return raw ? JSON.parse(raw) : {};
+  } catch { return {}; }
 }
 
+function saveStations(projectId: number, data: Record<number, StationState>) {
+  localStorage.setItem(`retention_${projectId}`, JSON.stringify(data));
+}
+
+interface Props { project: Project }
+
 export default function RetentionChecklist({ project }: Props) {
-  const [stations, setStations] = useState<RetentionStation[]>([]);
   const [open, setOpen] = useState(false);
+  const [data, setData] = useState<Record<number, StationState>>({});
 
   useEffect(() => {
-    if (open) getRetentionStations(project.id).then(setStations);
+    if (open) setData(loadStations(project.id));
   }, [open, project.id]);
 
-  function getStation(index: number): RetentionStation | undefined {
-    return stations.find(s => s.station_index === index);
+  function getStation(index: number): StationState {
+    return data[index] ?? { done: false, notes: '' };
   }
 
-  async function handleToggle(index: number, done: boolean) {
-    await toggleRetentionStation(project.id, index, done);
-    setStations(prev => {
-      const existing = prev.find(s => s.station_index === index);
-      if (existing) return prev.map(s => s.station_index === index ? { ...s, done, done_at: done ? new Date().toISOString() : null } : s);
-      return [...prev, { id: 0, project_id: project.id, station_index: index, done, done_at: done ? new Date().toISOString() : null, notes: null }];
-    });
+  function handleToggle(index: number, done: boolean) {
+    const next = { ...data, [index]: { ...getStation(index), done } };
+    setData(next);
+    saveStations(project.id, next);
   }
 
-  async function handleNote(index: number, notes: string) {
-    await updateRetentionNote(project.id, index, notes);
+  function handleNote(index: number, notes: string) {
+    const next = { ...data, [index]: { ...getStation(index), notes } };
+    setData(next);
+    saveStations(project.id, next);
   }
 
-  const doneCount = STATION_DEFS.filter(d => getStation(d.index)?.done).length;
+  const doneCount = STATION_DEFS.filter(d => getStation(d.index).done).length;
 
   return (
     <div className="retention-wrap">
@@ -49,7 +52,7 @@ export default function RetentionChecklist({ project }: Props) {
         aria-expanded={open}
       >
         <span>{open ? '▲' : '▼'}</span>
-        <span>ציר שימור</span>
+        <span>✨ ציר שימור</span>
         {!open && (
           <span className="stages-toggle-hint">{doneCount}/{STATION_DEFS.length} תחנות הושלמו</span>
         )}
@@ -59,35 +62,34 @@ export default function RetentionChecklist({ project }: Props) {
         <div className="retention-list">
           {STATION_DEFS.map(def => {
             const station = getStation(def.index);
-            const done = station?.done ?? false;
             const due = def.getDueDate(project.locked_at ?? null, project.event_date ?? null);
             const { label: dueLabel, urgent, overdue } = formatDueDate(due);
 
             return (
-              <div key={def.index} className={`retention-station${done ? ' done' : ''}${overdue && !done ? ' overdue' : ''}`}>
+              <div key={def.index} className={`retention-station${station.done ? ' done' : ''}${overdue && !station.done ? ' overdue' : ''}`}>
                 <div className="retention-station-top">
                   <input
                     type="checkbox"
                     className="stage-check"
-                    checked={done}
+                    checked={station.done}
                     onChange={e => handleToggle(def.index, e.target.checked)}
                   />
                   <div className="retention-station-info">
-                    <span className="retention-station-title">
-                      תחנה {def.index}: {def.title}
-                    </span>
+                    <span className="retention-station-title">תחנה {def.index}: {def.title}</span>
                     <span className="retention-station-desc">{def.desc}</span>
                   </div>
-                  <span className={`retention-due${urgent ? ' urgent' : ''}${overdue ? ' overdue-label' : ''}`}>
-                    {dueLabel}
-                  </span>
+                  {due && (
+                    <span className={`retention-due${urgent ? ' urgent' : ''}${overdue ? ' overdue-label' : ''}`}>
+                      {dueLabel}
+                    </span>
+                  )}
                 </div>
                 <input
                   type="text"
                   className="retention-note"
                   placeholder="הערה..."
-                  defaultValue={station?.notes ?? ''}
-                  onBlur={e => handleNote(def.index, e.target.value)}
+                  value={station.notes}
+                  onChange={e => handleNote(def.index, e.target.value)}
                 />
               </div>
             );
