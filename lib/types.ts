@@ -139,3 +139,11 @@ export const MAILING_SUBTYPES = [
   'אחר',
   'הקבצה א׳- מועדון השותפות של פטריוטית',
 ];
+
+export const MAILING_SUBTYPE_COLORS: Record<string, { banner: string; badgeBg: string; badgeText: string; icon: string }> = {
+  'שיתוף':   { banner: '#32FF9D', badgeBg: '#B8FFE5', badgeText: '#006B3A', icon: '#00994D' },
+  'פטריוטיפ': { banner: '#FF3232', badgeBg: '#FFD0D0', badgeText: '#990000', icon: '#CC0000' },
+  'הרהורים':  { banner: '#4A7DFF', badgeBg: '#D0DCFF', badgeText: '#1A3EAA', icon: '#1A3EAA' },
+  'אחר':     { banner: '#EF32FF', badgeBg: '#FFD6FF', badgeText: '#880099', icon: '#880099' },
+  'הקבצה א׳- מועדון השותפות של פטריוטית': { banner: '#FFEA32', badgeBg: '#FFF5A0', badgeText: '#7A6500', icon: '#7A6500' },
+};

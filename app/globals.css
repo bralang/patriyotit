@@ -60,10 +60,12 @@ header h1{font-size:18px;font-weight:600;white-space:nowrap}
 .btn-delete{color:#FF3232}
 .btn-delete:hover{background:#FFE5E5;border-color:#FFB3B3}
 .empty{text-align:center;padding:3rem;color:#888;font-size:14px}
-.card.mailing{border:2px solid #EF32FF;background:#FEF5FF}
-.card.mailing .card-name{color:#9B00C0}
+.card.mailing{border:0.5px solid #dce6ff;background:#fff;overflow:hidden;padding-top:0}
+.card.mailing .card-name{color:var(--mailing-icon-color,#8800AA)}
 .card.mailing .badge-type{background:#FCE0FF;color:#8800AA}
-.badge-mailing-sub{background:#EF32FF;color:#fff;font-weight:700}
+.mailing-banner{height:7px;margin:-16px -16px 14px;display:block}
+.mailing-name-icon{font-size:16px;margin-left:6px;vertical-align:-2px}
+.badge-mailing-sub{font-weight:600;font-size:11px;padding:3px 9px;border-radius:20px}
 
 /* MODAL */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100;align-items:center;justify-content:center;padding:20px}

@@ -5,7 +5,7 @@ import { useApp } from '@/context/AppContext';
 import { setProjectStatus, archiveProject, duplicateProject, deleteProject, createMailingProject } from '@/lib/projects';
 import { logActivity } from '@/lib/activity';
 import { getUrgency, formatEventDate, linkifyContact, getStatusStyle } from '@/lib/utils';
-import { MAILING_TYPE_NAME } from '@/lib/types';
+import { MAILING_TYPE_NAME, MAILING_SUBTYPE_COLORS } from '@/lib/types';
 import StagesTable from './StagesTable';
 import HebrewDate from './HebrewDate';
 
@@ -23,6 +23,7 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
   const isMe = currentWorker && project.workers?.some(w => w.id === currentWorker.id);
   const isLocked = project.status?.name.includes('ננעל');
   const isMailing = project.type?.name === MAILING_TYPE_NAME;
+  const mailingColors = isMailing && project.package ? MAILING_SUBTYPE_COLORS[project.package.name] : null;
   const urgency = getUrgency(project.event_date ?? null);
   const stages = project.stages ?? [];
   const stageCount = stages.length || (isMailing ? 4 : 7);
@@ -70,12 +71,23 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
 
   return (
     <div className={`card${isMe ? ' mine' : ''}${isLocked ? ' locked' : ''}${isMailing ? ' mailing' : ''}`}>
+      {isMailing && (
+        <span className="mailing-banner" style={{ background: mailingColors?.banner ?? '#EF32FF' }} />
+      )}
       <div className="card-top">
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <div className="card-name">{project.name}</div>
+          <div className="card-name">
+            {isMailing && <i className="ti ti-send mailing-name-icon" aria-hidden="true" style={{ color: mailingColors?.icon ?? '#880099' }} />}
+            {project.name}
+          </div>
           {isLocked && <span className="locked-banner">🔒 ננעל</span>}
           {urgency && <span className={`urgency-${urgency.level}`}>{urgency.label}<HebrewDate date={project.event_date} /></span>}
-          {project.package && <span className={`badge ${isMailing ? 'badge-mailing-sub' : 'badge-package'}`}>{project.package.name}</span>}
+          {project.package && (
+            <span
+              className={`badge ${isMailing ? 'badge-mailing-sub' : 'badge-package'}`}
+              style={mailingColors ? { background: mailingColors.badgeBg, color: mailingColors.badgeText } : {}}
+            >{project.package.name}</span>
+          )}
           {eventDateDisplay}
         </div>
         <div className="card-right">
