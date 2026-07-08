@@ -79,6 +79,9 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
           <div className="card-name">
             {isMailing && <span className="mailing-name-icon" style={{ color: mailingColors?.icon ?? '#880099' }}>✉</span>}
+            {isMailing && project.package && (
+              <span style={{ color: mailingColors?.icon ?? '#880099', fontWeight: 600 }}>כתיבת דיוור {project.package.name}: </span>
+            )}
             {project.name}
           </div>
           {isLocked && <span className="locked-banner">🔒 ננעל</span>}
