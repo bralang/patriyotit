@@ -122,3 +122,12 @@ export const WORK_STAGES: WorkStageDef[] = [
   { name: 'מאסטרטיפ', intermediate: false },
   { name: 'אישור לקוח', intermediate: true },
 ];
+
+export const MAILING_TYPE_NAME = 'דיוור';
+
+export const MAILING_STAGES: WorkStageDef[] = [
+  { name: 'יצירת הדמיות', intermediate: false },
+  { name: 'כתיבה', intermediate: false },
+  { name: 'בדיקה', intermediate: false },
+  { name: 'תזמון', intermediate: false },
+];

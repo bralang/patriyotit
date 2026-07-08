@@ -2,9 +2,10 @@
 import { useState } from 'react';
 import type { Project, Status } from '@/lib/types';
 import { useApp } from '@/context/AppContext';
-import { setProjectStatus, archiveProject, duplicateProject, deleteProject } from '@/lib/projects';
+import { setProjectStatus, archiveProject, duplicateProject, deleteProject, createMailingProject } from '@/lib/projects';
 import { logActivity } from '@/lib/activity';
 import { getUrgency, formatEventDate, linkifyContact, getStatusStyle } from '@/lib/utils';
+import { MAILING_TYPE_NAME } from '@/lib/types';
 import StagesTable from './StagesTable';
 import HebrewDate from './HebrewDate';
 
@@ -21,15 +22,22 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
 
   const isMe = currentWorker && project.workers?.some(w => w.id === currentWorker.id);
   const isLocked = project.status?.name.includes('ננעל');
+  const isMailing = project.type?.name === MAILING_TYPE_NAME;
   const urgency = getUrgency(project.event_date ?? null);
-  const doneCount = (project.stages ?? []).filter(s => s.done).length;
-  const pct = Math.round((doneCount / 7) * 100);
+  const stages = project.stages ?? [];
+  const stageCount = stages.length || (isMailing ? 4 : 7);
+  const doneCount = stages.filter(s => s.done).length;
+  const pct = Math.round((doneCount / stageCount) * 100);
 
   async function handleQuickStatus(status: Status) {
     const wasLocked = isLocked;
     await setProjectStatus(project.id, status.id);
-    if (status.name.includes('ננעל') && !wasLocked) {
+    const nowLocked = status.name.includes('ננעל');
+    if (nowLocked && !wasLocked) {
       showLockToast(project.name);
+      if (!isMailing) {
+        createMailingProject(project.name, settings).then(onUpdate);
+      }
     }
     if (currentWorker) logActivity(`🔄 שינוי סטטוס ל-${status.name}`, project.name, currentWorker.id);
     setStatusDropdownOpen(false);
@@ -61,7 +69,7 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
   ) : null;
 
   return (
-    <div className={`card${isMe ? ' mine' : ''}${isLocked ? ' locked' : ''}`}>
+    <div className={`card${isMe ? ' mine' : ''}${isLocked ? ' locked' : ''}${isMailing ? ' mailing' : ''}`}>
       <div className="card-top">
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
           <div className="card-name">{project.name}</div>
@@ -138,7 +146,7 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
         <div className="progress-bar-bg">
           <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
         </div>
-        <div className="progress-label">{doneCount}/7 שלבים הושלמו{pct === 100 ? ' ✅' : ''}</div>
+        <div className="progress-label">{doneCount}/{stageCount} שלבים הושלמו{pct === 100 ? ' ✅' : ''}</div>
       </div>
 
       {project.notes && (
@@ -163,7 +171,7 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
         <span>{stagesOpen ? '▲' : '▼'}</span>
         <span>שלבים ומעקב זמן</span>
         {!stagesOpen && (
-          <span className="stages-toggle-hint">{doneCount}/7 הושלמו</span>
+          <span className="stages-toggle-hint">{doneCount}/{stageCount} הושלמו</span>
         )}
       </button>
 

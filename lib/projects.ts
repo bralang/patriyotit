@@ -1,6 +1,6 @@
 import { createClient } from './supabase';
-import type { Project, ProjectStage, StageWorkerTime, Worker } from './types';
-import { WORK_STAGES } from './types';
+import type { Project, ProjectStage, StageWorkerTime, Worker, Settings } from './types';
+import { WORK_STAGES, MAILING_STAGES, MAILING_TYPE_NAME } from './types';
 
 const PROJECT_SELECT = `
   *,
@@ -40,7 +40,8 @@ export async function getProjects(): Promise<Project[]> {
 
 export async function saveProject(
   project: Partial<Project> & { name: string },
-  workerIds: number[]
+  workerIds: number[],
+  customStageNames?: string[]
 ): Promise<Project> {
   const supabase = createClient();
 
@@ -75,12 +76,13 @@ export async function saveProject(
       .single();
     if (error) throw error;
     projectId = data.id;
-    // Create the 7 default stages for new projects
+    // Create stages for new project (default 7, or custom for special types)
+    const stageNames = customStageNames ?? WORK_STAGES.map(s => s.name);
     await supabase.from('project_stages').insert(
-      WORK_STAGES.map((s, i) => ({
+      stageNames.map((name, i) => ({
         project_id: projectId,
         stage_index: i,
-        name: s.name,
+        name,
       }))
     );
   }
@@ -161,6 +163,34 @@ export async function duplicateProject(id: number): Promise<Project> {
       archived_at: null,
     },
     workerIds
+  );
+}
+
+export async function createMailingProject(
+  originalProjectName: string,
+  settings: Pick<Settings, 'types' | 'workers'>
+): Promise<Project> {
+  const supabase = createClient();
+
+  let mailingType = settings.types.find(t => t.name === MAILING_TYPE_NAME);
+  if (!mailingType) {
+    const { data } = await supabase
+      .from('project_types')
+      .insert({ name: MAILING_TYPE_NAME, sort_order: 999 })
+      .select()
+      .single();
+    mailingType = data;
+  }
+
+  const worker = settings.workers.find(w => w.name === 'חיה רבקה');
+
+  return saveProject(
+    {
+      name: `דיוור — ${originalProjectName}`,
+      type_id: mailingType?.id ?? null,
+    },
+    worker ? [worker.id] : [],
+    MAILING_STAGES.map(s => s.name)
   );
 }
 

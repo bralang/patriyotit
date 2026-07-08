@@ -60,6 +60,9 @@ header h1{font-size:18px;font-weight:600;white-space:nowrap}
 .btn-delete{color:#FF3232}
 .btn-delete:hover{background:#FFE5E5;border-color:#FFB3B3}
 .empty{text-align:center;padding:3rem;color:#888;font-size:14px}
+.card.mailing{border:2px solid #EF32FF;background:#FEF5FF}
+.card.mailing .card-name{color:#9B00C0}
+.card.mailing .badge-type{background:#FCE0FF;color:#8800AA}
 
 /* MODAL */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100;align-items:center;justify-content:center;padding:20px}
