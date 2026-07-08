@@ -185,7 +185,15 @@ export async function createMailingProject(
   }
 
   const worker = settings.workers.find(w => w.name === 'חיה רבקה');
-  const subtypePackage = settings.packages.find(p => p.name === subtypeName);
+  let subtypePackage = settings.packages.find(p => p.name === subtypeName);
+  if (!subtypePackage) {
+    const { data } = await supabase
+      .from('packages')
+      .insert({ name: subtypeName, sort_order: 99 })
+      .select()
+      .single();
+    subtypePackage = data ?? undefined;
+  }
   const name = isAutoCreated ? `דיוור — ${projectName}` : projectName;
 
   return saveProject(
