@@ -33,6 +33,7 @@ export default function DashboardPage() {
   const [reportOpen, setReportOpen] = useState(false);
   const [logOpen, setLogOpen] = useState(false);
   const [mailingOpen, setMailingOpen] = useState(false);
+  const [typePickerOpen, setTypePickerOpen] = useState(false);
   const [calOpen, setCalOpen] = useState(false);
   const [lastSaved, setLastSaved] = useState('');
 
@@ -146,8 +147,7 @@ export default function DashboardPage() {
           <button className="btn-settings" style={{ color: '#0A6640', borderColor: '#32FF9D' }} onClick={handleExcel}>⬇️ Excel</button>
           <button className="btn-settings" style={{ color: '#32FF9D', borderColor: '#32FF9D' }} onClick={() => setReportOpen(true)}>📊 דוח</button>
           <button className="btn-settings" onClick={() => setLogOpen(true)}>📜 פעילות</button>
-          <button className="btn-add" onClick={() => { setEditId(null); setProjectModalOpen(true); }}>+ פרויקט חדש</button>
-          <button className="btn-add" onClick={() => setMailingOpen(true)} style={{ background: '#EF32FF' }}>📧 דיוור</button>
+          <button className="btn-add" onClick={() => setTypePickerOpen(true)}>+ פרויקט חדש</button>
         </div>
       </header>
 
@@ -238,6 +238,30 @@ export default function DashboardPage() {
       <ReportModal open={reportOpen} onClose={() => setReportOpen(false)} />
       <ActivityLogModal open={logOpen} onClose={() => setLogOpen(false)} />
       <MailingModal open={mailingOpen} onClose={() => setMailingOpen(false)} onSave={handleUpdate} />
+
+      {typePickerOpen && (
+        <div className="modal-overlay open" onClick={e => e.target === e.currentTarget && setTypePickerOpen(false)}>
+          <div className="modal" style={{ maxWidth: 380, textAlign: 'center' }}>
+            <h2 style={{ marginBottom: 24 }}>איזה סוג פרויקט?</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <button
+                className="btn-save"
+                style={{ padding: '16px', fontSize: 15 }}
+                onClick={() => { setTypePickerOpen(false); setEditId(null); setProjectModalOpen(true); }}
+              >
+                🎨 תהליך יצירה
+              </button>
+              <button
+                className="btn-save"
+                style={{ padding: '16px', fontSize: 15, background: '#EF32FF' }}
+                onClick={() => { setTypePickerOpen(false); setMailingOpen(true); }}
+              >
+                📧 כתיבת דיוור
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {calOpen && (
         <CalendarView
           projects={active}
