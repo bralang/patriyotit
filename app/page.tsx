@@ -16,6 +16,7 @@ import SettingsModal from '@/components/SettingsModal';
 import ReportModal from '@/components/ReportModal';
 import ActivityLogModal from '@/components/ActivityLogModal';
 import MailingModal from '@/components/MailingModal';
+import { getTodayRetentionAlerts } from '@/lib/retention';
 
 type View = 'cards' | 'table' | 'cal' | 'archive';
 
@@ -61,6 +62,11 @@ export default function DashboardPage() {
     active.filter(p => !p.status?.name.includes('ננעל') && getUrgency(p.event_date)),
     [active]
   );
+
+  const retentionAlerts = useMemo(() => {
+    if (typeof window === 'undefined') return [];
+    return getTodayRetentionAlerts(projects);
+  }, [projects]);
 
   async function handleUpdate() {
     await refresh();
@@ -150,6 +156,17 @@ export default function DashboardPage() {
           <button className="btn-add" onClick={() => setTypePickerOpen(true)}>+ פרויקט חדש</button>
         </div>
       </header>
+
+      {retentionAlerts.length > 0 && (
+        <div className="urgent-banner retention-banner">
+          <span style={{ fontWeight: 700, color: '#7A6500' }}>✨ תזכורת ציר שימור להיום:</span>
+          {retentionAlerts.map((a, i) => (
+            <span key={i} className="urgent-banner-item" style={{ color: '#7A6500' }}>
+              {a.projectName} — תחנה {a.stationIndex}: {a.stationTitle}
+            </span>
+          ))}
+        </div>
+      )}
 
       {urgentProjects.length > 0 && (
         <div className="urgent-banner">

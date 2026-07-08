@@ -41,9 +41,9 @@ export const STATION_DEFS = [
   {
     index: 5,
     title: 'ד"ש נוסטלגי',
-    desc: 'תקופה מקבילה בשנה הבאה — תזכורת חמה על הפרויקט',
+    desc: 'חודש לפני התקופה המקבילה — תזכורת חמה על הפרויקט',
     getDueDate: (_lockedAt: string | null, eventDate: string | null) =>
-      eventDate ? addDays(eventDate, 365) : null,
+      eventDate ? addDays(eventDate, 335) : null,
   },
 ] as const;
 
@@ -66,6 +66,34 @@ export function formatDueDate(dateStr: string | null): { label: string; urgent: 
     urgent: false,
     overdue: false,
   };
+}
+
+export type RetentionAlert = {
+  projectId: number;
+  projectName: string;
+  stationIndex: number;
+  stationTitle: string;
+};
+
+export function getTodayRetentionAlerts(
+  projects: Array<{ id: number; name: string; locked_at?: string | null; event_date?: string | null; status?: { name: string } | null }>
+): RetentionAlert[] {
+  const today = new Date().toISOString().slice(0, 10);
+  const alerts: RetentionAlert[] = [];
+  for (const project of projects) {
+    if (!project.status?.name.includes('ננעל')) continue;
+    const saved: Record<number, { done: boolean }> = (() => {
+      try { return JSON.parse(localStorage.getItem(`retention_${project.id}`) ?? '{}'); }
+      catch { return {}; }
+    })();
+    for (const def of STATION_DEFS) {
+      const due = def.getDueDate(project.locked_at ?? null, project.event_date ?? null);
+      if (due === today && !saved[def.index]?.done) {
+        alerts.push({ projectId: project.id, projectName: project.name, stationIndex: def.index, stationTitle: def.title });
+      }
+    }
+  }
+  return alerts;
 }
 
 export async function getRetentionStations(projectId: number): Promise<RetentionStation[]> {

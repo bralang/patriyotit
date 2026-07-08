@@ -175,6 +175,8 @@ header h1{font-size:18px;font-weight:600;white-space:nowrap}
 /* URGENT BANNER */
 .urgent-banner{background:#FFE5E5;border-bottom:2px solid #FF3232;padding:10px 24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .urgent-banner-item{font-size:13px;font-weight:600;color:#CC0000;background:#fff;border:1px solid #FF3232;border-radius:8px;padding:4px 12px}
+.retention-banner{background:#FFFBE6;border-bottom:2px solid #FFEA32}
+.retention-banner .urgent-banner-item{color:#7A6500;border-color:#FFEA32;background:#fff}
 
 /* TABLE VIEW */
 .view-toggle{display:flex;gap:4px;background:#EBF1FF;border-radius:8px;padding:3px}
