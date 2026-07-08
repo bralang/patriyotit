@@ -75,7 +75,7 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
           <div className="card-name">{project.name}</div>
           {isLocked && <span className="locked-banner">🔒 ננעל</span>}
           {urgency && <span className={`urgency-${urgency.level}`}>{urgency.label}<HebrewDate date={project.event_date} /></span>}
-          {project.package && <span className="badge badge-package">{project.package.name}</span>}
+          {project.package && <span className={`badge ${isMailing ? 'badge-mailing-sub' : 'badge-package'}`}>{project.package.name}</span>}
           {eventDateDisplay}
         </div>
         <div className="card-right">
