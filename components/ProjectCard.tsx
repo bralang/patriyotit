@@ -78,7 +78,12 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
       <div className="card-top">
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
           <div className="card-name">
-            {isMailing && <i className="ti ti-send mailing-name-icon" aria-hidden="true" style={{ color: mailingColors?.icon ?? '#880099' }} />}
+            {isMailing && (
+              <svg className="mailing-name-icon" aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={mailingColors?.icon ?? '#880099'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13" />
+                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+              </svg>
+            )}
             {project.name}
           </div>
           {isLocked && <span className="locked-banner">🔒 ננעל</span>}
