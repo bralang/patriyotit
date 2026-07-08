@@ -195,7 +195,7 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
         <StagesTable project={project} onUpdate={onUpdate} />
       </div>
 
-      {isLocked && <RetentionChecklist project={project} />}
+      {isLocked && !isMailing && <RetentionChecklist project={project} />}
     </div>
   );
 }

@@ -76,12 +76,13 @@ export type RetentionAlert = {
 };
 
 export function getTodayRetentionAlerts(
-  projects: Array<{ id: number; name: string; locked_at?: string | null; event_date?: string | null; status?: { name: string } | null }>
+  projects: Array<{ id: number; name: string; locked_at?: string | null; event_date?: string | null; status?: { name: string } | null; type?: { name: string } | null }>
 ): RetentionAlert[] {
   const today = new Date().toISOString().slice(0, 10);
   const alerts: RetentionAlert[] = [];
   for (const project of projects) {
     if (!project.status?.name.includes('ננעל')) continue;
+    if (project.type?.name === 'דיוור') continue;
     const saved: Record<number, { done: boolean }> = (() => {
       try { return JSON.parse(localStorage.getItem(`retention_${project.id}`) ?? '{}'); }
       catch { return {}; }
