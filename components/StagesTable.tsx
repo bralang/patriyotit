@@ -24,7 +24,11 @@ export default function StagesTable({ project, onUpdate }: Props) {
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, []);
 
+  const isMailing = project.type?.name === MAILING_TYPE_NAME;
   const stages = project.stages ?? [];
+  const visibleWorkers = isMailing
+    ? settings.workers.filter(w => w.name === 'חיה רבקה' || w.name === 'נחמה')
+    : settings.workers;
 
   function getStoredMs(stage: ProjectStage, workerId: number): number {
     return stage.worker_times?.find(wt => wt.worker_id === workerId)?.duration_ms ?? 0;
@@ -68,7 +72,6 @@ export default function StagesTable({ project, onUpdate }: Props) {
   async function handleStageDone(stage: ProjectStage, done: boolean) {
     await toggleStageDone(stage.id, done);
     // Advance status when completing a stage (not for mailing projects)
-    const isMailing = project.type?.name === MAILING_TYPE_NAME;
     if (!isMailing && done && settings.statuses.length && project.status_id !== null) {
       const idx = settings.statuses.findIndex(s => s.id === project.status_id);
       const next = settings.statuses[idx + 1];
@@ -92,7 +95,7 @@ export default function StagesTable({ project, onUpdate }: Props) {
 
   function calcProjectTotal(): number {
     return stages.reduce((total, stage) => {
-      return total + settings.workers.reduce((wTotal, w) => wTotal + getTotalMs(stage, w.id), 0);
+      return total + visibleWorkers.reduce((wTotal, w) => wTotal + getTotalMs(stage, w.id), 0);
     }, 0);
   }
 
@@ -105,8 +108,8 @@ export default function StagesTable({ project, onUpdate }: Props) {
             <th></th>
             <th>שלב</th>
             <th>הערה</th>
-            <th>זמן לקוח</th>
-            {settings.workers.map(w => (
+            {!isMailing && <th>זמן לקוח</th>}
+            {visibleWorkers.map(w => (
               <th key={w.id} style={{ textAlign: 'center' }}>⏱ {w.name}</th>
             ))}
             <th title="יעד לזמן יומן">🎯 יעד</th>
@@ -138,21 +141,23 @@ export default function StagesTable({ project, onUpdate }: Props) {
                     onBlur={e => updateStageField(stage.id, 'notes', e.target.value)}
                   />
                 </td>
-                <td>
-                  <div className="client-days-wrap">
-                    <input
-                      type="number"
-                      className="client-days-input"
-                      defaultValue={stage.client_days ?? ''}
-                      step={0.5}
-                      min={0}
-                      placeholder="0"
-                      onBlur={e => updateStageField(stage.id, 'client_days', e.target.value ? Number(e.target.value) : null)}
-                    />
-                    <span style={{ color: '#888', fontSize: 11 }}>ימים</span>
-                  </div>
-                </td>
-                {settings.workers.map(w => {
+                {!isMailing && (
+                  <td>
+                    <div className="client-days-wrap">
+                      <input
+                        type="number"
+                        className="client-days-input"
+                        defaultValue={stage.client_days ?? ''}
+                        step={0.5}
+                        min={0}
+                        placeholder="0"
+                        onBlur={e => updateStageField(stage.id, 'client_days', e.target.value ? Number(e.target.value) : null)}
+                      />
+                      <span style={{ color: '#888', fontSize: 11 }}>ימים</span>
+                    </div>
+                  </td>
+                )}
+                {visibleWorkers.map(w => {
                   const running = isRunning(stage, w.id);
                   const total = getTotalMs(stage, w.id);
                   const canControl = currentWorker?.id === w.id;
@@ -209,7 +214,7 @@ export default function StagesTable({ project, onUpdate }: Props) {
         </tbody>
         <tfoot>
           <tr>
-            <td colSpan={5 + settings.workers.length} style={{ paddingTop: 7, borderTop: '1px solid #eee' }}>
+            <td colSpan={(isMailing ? 4 : 5) + visibleWorkers.length} style={{ paddingTop: 7, borderTop: '1px solid #eee' }}>
               <span style={{ fontSize: 12, color: '#555', fontWeight: 600 }}>סה&quot;כ זמן יומן: </span>
               <span style={{ fontFamily: 'monospace', fontSize: 13, color: '#4A7DFF', fontWeight: 700 }}>
                 {formatTime(calcProjectTotal())}
