@@ -15,6 +15,7 @@ import ArchiveView from '@/components/ArchiveView';
 import SettingsModal from '@/components/SettingsModal';
 import ReportModal from '@/components/ReportModal';
 import ActivityLogModal from '@/components/ActivityLogModal';
+import MailingModal from '@/components/MailingModal';
 
 type View = 'cards' | 'table' | 'cal' | 'archive';
 
@@ -31,6 +32,7 @@ export default function DashboardPage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [logOpen, setLogOpen] = useState(false);
+  const [mailingOpen, setMailingOpen] = useState(false);
   const [calOpen, setCalOpen] = useState(false);
   const [lastSaved, setLastSaved] = useState('');
 
@@ -145,6 +147,7 @@ export default function DashboardPage() {
           <button className="btn-settings" style={{ color: '#32FF9D', borderColor: '#32FF9D' }} onClick={() => setReportOpen(true)}>📊 דוח</button>
           <button className="btn-settings" onClick={() => setLogOpen(true)}>📜 פעילות</button>
           <button className="btn-add" onClick={() => { setEditId(null); setProjectModalOpen(true); }}>+ פרויקט חדש</button>
+          <button className="btn-add" onClick={() => setMailingOpen(true)} style={{ background: '#EF32FF' }}>📧 דיוור</button>
         </div>
       </header>
 
@@ -234,6 +237,7 @@ export default function DashboardPage() {
       <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <ReportModal open={reportOpen} onClose={() => setReportOpen(false)} />
       <ActivityLogModal open={logOpen} onClose={() => setLogOpen(false)} />
+      <MailingModal open={mailingOpen} onClose={() => setMailingOpen(false)} onSave={handleUpdate} />
       {calOpen && (
         <CalendarView
           projects={active}

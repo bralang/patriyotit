@@ -36,7 +36,7 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
     if (nowLocked && !wasLocked) {
       showLockToast(project.name);
       if (!isMailing) {
-        createMailingProject(project.name, settings).then(onUpdate);
+        createMailingProject(project.name, settings, 'שיתוף', true).then(onUpdate);
       }
     }
     if (currentWorker) logActivity(`🔄 שינוי סטטוס ל-${status.name}`, project.name, currentWorker.id);

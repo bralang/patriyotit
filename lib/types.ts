@@ -131,3 +131,11 @@ export const MAILING_STAGES: WorkStageDef[] = [
   { name: 'בדיקה', intermediate: false },
   { name: 'תזמון', intermediate: false },
 ];
+
+export const MAILING_SUBTYPES = [
+  'שיתוף',
+  'פטריוטיפ',
+  'הרהורים',
+  'אחר',
+  'הקבצה א׳- מועדון השותפות של פטריוטית',
+];

@@ -167,8 +167,10 @@ export async function duplicateProject(id: number): Promise<Project> {
 }
 
 export async function createMailingProject(
-  originalProjectName: string,
-  settings: Pick<Settings, 'types' | 'workers'>
+  projectName: string,
+  settings: Pick<Settings, 'types' | 'workers' | 'packages'>,
+  subtypeName = 'שיתוף',
+  isAutoCreated = false
 ): Promise<Project> {
   const supabase = createClient();
 
@@ -183,11 +185,14 @@ export async function createMailingProject(
   }
 
   const worker = settings.workers.find(w => w.name === 'חיה רבקה');
+  const subtypePackage = settings.packages.find(p => p.name === subtypeName);
+  const name = isAutoCreated ? `דיוור — ${projectName}` : projectName;
 
   return saveProject(
     {
-      name: `דיוור — ${originalProjectName}`,
+      name,
       type_id: mailingType?.id ?? null,
+      package_id: subtypePackage?.id ?? null,
     },
     worker ? [worker.id] : [],
     MAILING_STAGES.map(s => s.name)
