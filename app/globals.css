@@ -118,6 +118,23 @@ header h1{font-size:18px;font-weight:600;white-space:nowrap}
 .stages-collapsible{overflow:hidden;max-height:0;opacity:0;transition:max-height .3s ease,opacity .25s ease}
 .stages-collapsible.open{max-height:2000px;opacity:1}
 
+/* RETENTION */
+.retention-wrap{margin-top:4px}
+.retention-toggle{border-top:1px dashed #FFEA32;color:#B07800}
+.retention-toggle:hover{color:#7A6500}
+.retention-list{display:flex;flex-direction:column;gap:8px;padding:10px 2px 4px}
+.retention-station{border:0.5px solid #eef2ff;border-radius:8px;padding:10px 12px;background:#fafaf8}
+.retention-station.done{opacity:.55}
+.retention-station.overdue{border-color:#FFD0D0;background:#FFF8F8}
+.retention-station-top{display:flex;align-items:flex-start;gap:10px}
+.retention-station-info{flex:1;display:flex;flex-direction:column;gap:2px}
+.retention-station-title{font-size:13px;font-weight:600;color:#333}
+.retention-station-desc{font-size:11px;color:#888}
+.retention-due{font-size:11px;color:#aaa;white-space:nowrap}
+.retention-due.urgent{color:#FF8C00;font-weight:600}
+.retention-due.overdue-label{color:#CC0000;font-weight:600}
+.retention-note{margin-top:7px;width:100%;font-size:11px;border:1px solid #dce6ff;border-radius:5px;padding:3px 8px;outline:none;background:transparent;color:#555}
+
 /* STAGES */
 .stages-section{margin-top:4px;padding-top:6px}
 .stages-table{width:100%;border-collapse:collapse;font-size:12px}

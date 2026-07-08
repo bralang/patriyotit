@@ -7,6 +7,7 @@ import { logActivity } from '@/lib/activity';
 import { getUrgency, formatEventDate, linkifyContact, getStatusStyle } from '@/lib/utils';
 import { MAILING_TYPE_NAME, MAILING_SUBTYPE_COLORS } from '@/lib/types';
 import StagesTable from './StagesTable';
+import RetentionChecklist from './RetentionChecklist';
 import HebrewDate from './HebrewDate';
 
 interface Props {
@@ -193,6 +194,8 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
       <div className={`stages-collapsible${stagesOpen ? ' open' : ''}`}>
         <StagesTable project={project} onUpdate={onUpdate} />
       </div>
+
+      {isLocked && <RetentionChecklist project={project} />}
     </div>
   );
 }
