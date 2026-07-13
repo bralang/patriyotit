@@ -27,6 +27,7 @@ export default function DashboardPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
+  const [workerFilter, setWorkerFilter] = useState('');
   const [showMine, setShowMine] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [projectModalOpen, setProjectModalOpen] = useState(false);
@@ -46,8 +47,9 @@ export default function DashboardPage() {
       const matchQ = !q || [p.name, p.client?.school_name, p.client?.city, p.client?.contact_name, p.notes].join(' ').toLowerCase().includes(q);
       const matchS = !statusFilter || p.status?.id === Number(statusFilter);
       const matchT = !typeFilter || p.type?.id === Number(typeFilter);
+      const matchW = !workerFilter || (p.workers ?? []).some(w => w.id === Number(workerFilter));
       const matchMe = !showMine || currentWorker == null || (p.workers ?? []).some(w => w.id === currentWorker.id);
-      return matchQ && matchS && matchT && matchMe;
+      return matchQ && matchS && matchT && matchW && matchMe;
     }).sort((a, b) => {
       const aLocked = a.status?.name.includes('ננעל') ? 1 : 0;
       const bLocked = b.status?.name.includes('ננעל') ? 1 : 0;
@@ -56,7 +58,7 @@ export default function DashboardPage() {
       const bDate = b.event_date ? new Date(b.event_date).getTime() : 9999999999999;
       return aDate - bDate;
     });
-  }, [active, search, statusFilter, typeFilter, showMine, currentWorker]);
+  }, [active, search, statusFilter, typeFilter, workerFilter, showMine, currentWorker]);
 
   const urgentProjects = useMemo(() =>
     active.filter(p => !p.status?.name.includes('ננעל') && getUrgency(p.event_date)),
@@ -213,6 +215,10 @@ export default function DashboardPage() {
             <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
               <option value="">כל הסוגים</option>
               {settings.types.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+            </select>
+            <select value={workerFilter} onChange={e => setWorkerFilter(e.target.value)}>
+              <option value="">כל העובדות</option>
+              {settings.workers.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
             </select>
           </div>
         )}

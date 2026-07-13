@@ -6,6 +6,8 @@ import { setProjectStatus, archiveProject, duplicateProject, deleteProject, crea
 import { logActivity } from '@/lib/activity';
 import { getUrgency, formatEventDate, linkifyContact, getStatusStyle } from '@/lib/utils';
 import { MAILING_TYPE_NAME, MAILING_SUBTYPE_COLORS } from '@/lib/types';
+import { STATION_DEFS } from '@/lib/retention';
+import { upsertWorkerTime } from '@/lib/stages';
 import StagesTable from './StagesTable';
 import RetentionChecklist from './RetentionChecklist';
 import HebrewDate from './HebrewDate';
@@ -17,7 +19,7 @@ interface Props {
 }
 
 export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
-  const { settings, currentWorker } = useApp();
+  const { settings, currentWorker, startTimer, stopTimer, getElapsed, activeTimers } = useApp();
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
   const [stagesOpen, setStagesOpen] = useState(false);
 
@@ -26,6 +28,42 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
   const isMailing = project.type?.name === MAILING_TYPE_NAME;
   const mailingColors = isMailing && project.package ? MAILING_SUBTYPE_COLORS[project.package.name] : null;
   const urgency = getUrgency(project.event_date ?? null);
+
+  // Quick timer: first non-done stage for current worker
+  const currentStage = stages.find(s => !s.done);
+  const timerKey = currentStage && currentWorker ? `${project.id}-${currentStage.stage_index}-${currentWorker.id}` : null;
+  const timerRunning = timerKey ? timerKey in activeTimers : false;
+
+  async function handleQuickTimer() {
+    if (!currentStage || !currentWorker) return;
+    if (timerRunning) {
+      const elapsed = stopTimer(project.id, currentStage.stage_index, currentWorker.id);
+      const stored = currentStage.worker_times?.find(wt => wt.worker_id === currentWorker.id)?.duration_ms ?? 0;
+      await upsertWorkerTime(currentStage.id, currentWorker.id, stored + elapsed);
+      onUpdate();
+    } else {
+      startTimer(project.id, currentStage.stage_index, currentWorker.id);
+    }
+  }
+
+  // Retention alert indicator
+  function getRetentionAlert(): 'overdue' | 'today' | null {
+    if (!isLocked || isMailing) return null;
+    try {
+      const saved: Record<number, { done: boolean }> = JSON.parse(localStorage.getItem(`retention_${project.id}`) ?? '{}');
+      const today = new Date().toISOString().slice(0, 10);
+      let hasToday = false;
+      for (const def of STATION_DEFS) {
+        if (saved[def.index]?.done) continue;
+        const due = def.getDueDate(project.locked_at ?? null, project.event_date ?? null);
+        if (!due) continue;
+        if (due < today) return 'overdue';
+        if (due === today) hasToday = true;
+      }
+      return hasToday ? 'today' : null;
+    } catch { return null; }
+  }
+  const retentionAlert = typeof window !== 'undefined' ? getRetentionAlert() : null;
   const stages = project.stages ?? [];
   const stageCount = stages.length || (isMailing ? 4 : 7);
   const doneCount = stages.filter(s => s.done).length;
@@ -86,17 +124,14 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
           </div>
           {isLocked && <span className="locked-banner">🔒 ננעל</span>}
           {urgency && <span className={`urgency-${urgency.level}`}>{urgency.label}<HebrewDate date={project.event_date} /></span>}
-          {project.package && (
-            <span
-              className={`badge ${isMailing ? 'badge-mailing-sub' : 'badge-package'}`}
-              style={mailingColors ? { background: mailingColors.badgeBg, color: mailingColors.badgeText } : {}}
-            >{project.package.name}</span>
+          {project.package && !isMailing && (
+            <span className="badge badge-package">{project.package.name}</span>
           )}
           {eventDateDisplay}
         </div>
         <div className="card-right">
           <div className="badges">
-            {project.type && <span className="badge badge-type">{project.type.name}</span>}
+            {project.type && !isMailing && <span className="badge badge-type">{project.type.name}</span>}
             <div className="badge-wrap" onClick={() => setStatusDropdownOpen(v => !v)}>
               {project.status ? (
                 <span
@@ -182,17 +217,29 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
         </div>
       )}
 
-      <button
-        className="stages-toggle-btn"
-        onClick={() => setStagesOpen(v => !v)}
-        aria-expanded={stagesOpen}
-      >
-        <span>{stagesOpen ? '▲' : '▼'}</span>
-        <span>שלבים ומעקב זמן</span>
-        {!stagesOpen && (
-          <span className="stages-toggle-hint">{doneCount}/{stageCount} הושלמו</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <button
+          className="stages-toggle-btn"
+          style={{ flex: 1 }}
+          onClick={() => setStagesOpen(v => !v)}
+          aria-expanded={stagesOpen}
+        >
+          <span>{stagesOpen ? '▲' : '▼'}</span>
+          <span>שלבים ומעקב זמן</span>
+          {!stagesOpen && (
+            <span className="stages-toggle-hint">{doneCount}/{stageCount} הושלמו</span>
+          )}
+        </button>
+        {currentStage && currentWorker && !isLocked && (
+          <button
+            className={`btn-quick-timer${timerRunning ? ' running' : ''}`}
+            onClick={handleQuickTimer}
+            title={timerRunning ? `עצור טיימר — ${currentStage.name}` : `התחל טיימר — ${currentStage.name}`}
+          >
+            {timerRunning ? '⏸' : '▶'}
+          </button>
         )}
-      </button>
+      </div>
 
       <div className={`stages-collapsible${stagesOpen ? ' open' : ''}`}>
         <StagesTable project={project} onUpdate={onUpdate} />

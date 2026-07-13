@@ -44,6 +44,18 @@ export default function RetentionChecklist({ project }: Props) {
 
   const doneCount = STATION_DEFS.filter(d => getStation(d.index).done).length;
 
+  useEffect(() => { setData(loadStations(project.id)); }, [project.id]);
+
+  const today = new Date().toISOString().slice(0, 10);
+  let alertLevel: 'overdue' | 'today' | null = null;
+  for (const def of STATION_DEFS) {
+    if (data[def.index]?.done) continue;
+    const due = def.getDueDate(project.locked_at ?? null, project.event_date ?? null);
+    if (!due) continue;
+    if (due < today) { alertLevel = 'overdue'; break; }
+    if (due === today && !alertLevel) alertLevel = 'today';
+  }
+
   return (
     <div className="retention-wrap">
       <button
@@ -53,7 +65,12 @@ export default function RetentionChecklist({ project }: Props) {
       >
         <span>{open ? '▲' : '▼'}</span>
         <span>✨ ציר שימור</span>
-        {!open && (
+        {alertLevel && (
+          <span className="retention-alert-dot" style={{ background: alertLevel === 'overdue' ? '#FF3232' : '#FFEA32', color: alertLevel === 'overdue' ? '#fff' : '#7A6500' }}>
+            {alertLevel === 'overdue' ? '⚠️ באיחור' : '● היום'}
+          </span>
+        )}
+        {!alertLevel && !open && (
           <span className="stages-toggle-hint">{doneCount}/{STATION_DEFS.length} תחנות הושלמו</span>
         )}
       </button>

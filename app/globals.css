@@ -122,6 +122,10 @@ header h1{font-size:18px;font-weight:600;white-space:nowrap}
 .retention-wrap{margin-top:4px}
 .retention-toggle{border-top:1px dashed #FFEA32;color:#B07800}
 .retention-toggle:hover{color:#7A6500}
+.retention-alert-dot{font-size:11px;padding:2px 7px;border-radius:20px;font-weight:700;margin-right:auto}
+.btn-quick-timer{border:none;border-radius:50%;width:28px;height:28px;font-size:13px;cursor:pointer;background:#eef2ff;color:#4A7DFF;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.btn-quick-timer:hover{background:#4A7DFF;color:#fff}
+.btn-quick-timer.running{background:#FF3232;color:#fff;animation:pulse .8s infinite}
 .retention-list{display:flex;flex-direction:column;gap:8px;padding:10px 2px 4px}
 .retention-station{border:0.5px solid #eef2ff;border-radius:8px;padding:10px 12px;background:#fafaf8}
 .retention-station.done{opacity:.55}
