@@ -30,6 +30,7 @@ export default function ProjectModal({ projectId, open, onClose, onSave }: Props
   const [templateUrl, setTemplateUrl] = useState('');
   const [eventDate, setEventDate] = useState('');
   const [notes, setNotes] = useState('');
+  const [price, setPrice] = useState('');
   const [selectedWorkerIds, setSelectedWorkerIds] = useState<number[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [clientModalOpen, setClientModalOpen] = useState(false);
@@ -65,11 +66,12 @@ export default function ProjectModal({ projectId, open, onClose, onSave }: Props
       setEventDate(existing.event_date ?? '');
       setNotes(existing.notes ?? '');
       setSelectedWorkerIds(existing.workers?.map(w => w.id) ?? []);
+      try { setPrice(localStorage.getItem(`price_${existing.id}`) ?? ''); } catch { setPrice(''); }
     } else {
       setName(''); setClientId(''); setContact2(''); setTypeId('');
       setStatusId(''); setPackageId(''); setDriveUrl('');
       setInstructionsUrl(''); setTemplateUrl(''); setEventDate('');
-      setNotes(''); setSelectedWorkerIds([]);
+      setNotes(''); setPrice(''); setSelectedWorkerIds([]);
     }
   }, [open, existing]);
 
@@ -100,6 +102,9 @@ export default function ProjectModal({ projectId, open, onClose, onSave }: Props
     );
     if (currentWorker) {
       logActivity(existing ? '✏️ עדכון פרויקט' : '➕ פרויקט חדש', name.trim(), currentWorker.id);
+    }
+    if (existing?.id && price) {
+      try { localStorage.setItem(`price_${existing.id}`, price); } catch {}
     }
     onSave();
     onClose();
@@ -222,6 +227,10 @@ export default function ProjectModal({ projectId, open, onClose, onSave }: Props
             <label>תאריך אירוע</label>
             <input type="date" value={eventDate} onChange={e => setEventDate(e.target.value)} />
             {eventDate && <HebrewDate date={eventDate} />}
+          </div>
+          <div className="form-field">
+            <label>מחיר הפרויקט (₪)</label>
+            <input type="number" min={0} placeholder="0" value={price} onChange={e => setPrice(e.target.value)} />
           </div>
           <div className="form-field full">
             <label>תיקיית דרייב (קישור)</label>
