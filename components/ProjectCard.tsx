@@ -6,7 +6,6 @@ import { setProjectStatus, archiveProject, duplicateProject, deleteProject, crea
 import { logActivity } from '@/lib/activity';
 import { getUrgency, formatEventDate, linkifyContact, getStatusStyle } from '@/lib/utils';
 import { MAILING_TYPE_NAME, MAILING_SUBTYPE_COLORS } from '@/lib/types';
-import { STATION_DEFS } from '@/lib/retention';
 import { upsertWorkerTime } from '@/lib/stages';
 import StagesTable from './StagesTable';
 import RetentionChecklist from './RetentionChecklist';
@@ -19,7 +18,7 @@ interface Props {
 }
 
 export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
-  const { settings, currentWorker, startTimer, stopTimer, getElapsed, activeTimers } = useApp();
+  const { settings, currentWorker, startTimer, stopTimer, activeTimers } = useApp();
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
   const [stagesOpen, setStagesOpen] = useState(false);
 
@@ -28,6 +27,10 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
   const isMailing = project.type?.name === MAILING_TYPE_NAME;
   const mailingColors = isMailing && project.package ? MAILING_SUBTYPE_COLORS[project.package.name] : null;
   const urgency = getUrgency(project.event_date ?? null);
+  const stages = project.stages ?? [];
+  const stageCount = stages.length || (isMailing ? 4 : 7);
+  const doneCount = stages.filter(s => s.done).length;
+  const pct = Math.round((doneCount / stageCount) * 100);
 
   // Quick timer: first non-done stage for current worker
   const currentStage = stages.find(s => !s.done);
@@ -46,28 +49,6 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
     }
   }
 
-  // Retention alert indicator
-  function getRetentionAlert(): 'overdue' | 'today' | null {
-    if (!isLocked || isMailing) return null;
-    try {
-      const saved: Record<number, { done: boolean }> = JSON.parse(localStorage.getItem(`retention_${project.id}`) ?? '{}');
-      const today = new Date().toISOString().slice(0, 10);
-      let hasToday = false;
-      for (const def of STATION_DEFS) {
-        if (saved[def.index]?.done) continue;
-        const due = def.getDueDate(project.locked_at ?? null, project.event_date ?? null);
-        if (!due) continue;
-        if (due < today) return 'overdue';
-        if (due === today) hasToday = true;
-      }
-      return hasToday ? 'today' : null;
-    } catch { return null; }
-  }
-  const retentionAlert = typeof window !== 'undefined' ? getRetentionAlert() : null;
-  const stages = project.stages ?? [];
-  const stageCount = stages.length || (isMailing ? 4 : 7);
-  const doneCount = stages.filter(s => s.done).length;
-  const pct = Math.round((doneCount / stageCount) * 100);
 
   async function handleQuickStatus(status: Status) {
     const wasLocked = isLocked;
