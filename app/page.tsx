@@ -153,7 +153,9 @@ export default function DashboardPage() {
             <button className={`view-btn${view === 'archive' ? ' active' : ''}`} onClick={() => setView('archive')} title="ארכיון">🗄️</button>
           </div>
           <button className="btn-settings" style={{ color: '#0A6640', borderColor: '#32FF9D' }} onClick={handleExcel}>⬇️ Excel</button>
-          <button className="btn-settings" style={{ color: '#32FF9D', borderColor: '#32FF9D' }} onClick={() => setReportOpen(true)}>📊 דוח</button>
+          {currentWorker?.name === 'חיה רבקה' && (
+            <button className="btn-settings" style={{ color: '#32FF9D', borderColor: '#32FF9D' }} onClick={() => setReportOpen(true)}>📊 דוח</button>
+          )}
           <button className="btn-settings" onClick={() => setLogOpen(true)}>📜 פעילות</button>
           <button className="btn-add" onClick={() => setTypePickerOpen(true)}>+ פרויקט חדש</button>
         </div>
