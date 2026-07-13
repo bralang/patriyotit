@@ -43,20 +43,25 @@ export default function LeadModal({ lead, open, onClose, onSave }: Props) {
 
   async function handleSave() {
     if (!name.trim()) return;
-    const saved = await saveLead({
-      id: lead?.id,
-      name: name.trim(),
-      school_name: schoolName || null,
-      city: city || null,
-      phone: phone || null,
-      email: email || null,
-      source,
-      referrer_name: source === 'referral' ? referrerName || null : null,
-      notes: notes || null,
-      status: lead?.status ?? 'open',
-    });
-    onSave(saved);
-    onClose();
+    try {
+      const saved = await saveLead({
+        id: lead?.id,
+        name: name.trim(),
+        school_name: schoolName || null,
+        city: city || null,
+        phone: phone || null,
+        email: email || null,
+        source,
+        referrer_name: source === 'referral' ? referrerName || null : null,
+        notes: notes || null,
+        status: lead?.status ?? 'open',
+      });
+      onSave(saved);
+      onClose();
+    } catch (e) {
+      console.error('save lead error', e);
+      alert('שגיאה בשמירה: ' + (e as Error).message);
+    }
   }
 
   if (!open) return null;
