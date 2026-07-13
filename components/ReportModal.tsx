@@ -128,7 +128,7 @@ export default function ReportModal({ open, onClose }: Props) {
             </div>
             <div className="report-card">
               <h4>ממוצע ₪ לשעה</h4>
-              <div className="report-num" style={{ color: avgPerHour >= 200 ? '#32FF9D' : avgPerHour >= 100 ? '#FFEA32' : '#FF3232', fontSize: 20 }}>
+              <div className="report-num" style={{ color: avgPerHour >= 400 ? '#32FF9D' : avgPerHour >= 200 ? '#FFEA32' : '#FF3232', fontSize: 20 }}>
                 ₪{avgPerHour.toFixed(0)}
               </div>
             </div>
@@ -164,7 +164,7 @@ export default function ReportModal({ open, onClose }: Props) {
                   <td>{r.totalHours.toFixed(1)}</td>
                   <td style={{
                     fontWeight: 700,
-                    color: r.perHour === null ? '#ccc' : r.perHour >= 200 ? '#00994D' : r.perHour >= 100 ? '#B07800' : '#CC0000'
+                    color: r.perHour === null ? '#ccc' : r.perHour >= 400 ? '#00994D' : r.perHour >= 200 ? '#B07800' : '#CC0000'
                   }}>
                     {r.perHour !== null ? `₪${r.perHour.toFixed(0)}` : '—'}
                   </td>
@@ -173,7 +173,7 @@ export default function ReportModal({ open, onClose }: Props) {
             </tbody>
           </table>
           <p style={{ fontSize: 11, color: '#aaa', marginTop: 8 }}>
-            הטבלה ממוינת מהרווחי ביותר לפחות. ירוק = מעל ₪200/שע׳, צהוב = ₪100–200, אדום = מתחת ל-₪100.
+            הטבלה ממוינת מהרווחי ביותר לפחות. ירוק = מעל ₪400/שע׳, צהוב = ₪200–400, אדום = מתחת ל-₪200.
           </p>
         </>}
 
