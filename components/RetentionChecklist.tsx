@@ -18,8 +18,13 @@ function saveStations(projectId: number, data: Record<number, StationState>) {
 
 interface Props { project: Project }
 
+function isDisabled(projectId: number): boolean {
+  try { return localStorage.getItem(`retention_disabled_${projectId}`) === '1'; } catch { return false; }
+}
+
 export default function RetentionChecklist({ project }: Props) {
   const [open, setOpen] = useState(false);
+  const [disabled, setDisabled] = useState(false);
   const [data, setData] = useState<Record<number, StationState>>({});
 
   useEffect(() => {
@@ -44,7 +49,32 @@ export default function RetentionChecklist({ project }: Props) {
 
   const doneCount = STATION_DEFS.filter(d => getStation(d.index).done).length;
 
-  useEffect(() => { setData(loadStations(project.id)); }, [project.id]);
+  useEffect(() => {
+    setData(loadStations(project.id));
+    setDisabled(isDisabled(project.id));
+  }, [project.id]);
+
+  function handleDisable() {
+    if (!confirm('להסתיר את ציר השימור לפרויקט זה?')) return;
+    localStorage.setItem(`retention_disabled_${project.id}`, '1');
+    setDisabled(true);
+  }
+
+  function handleEnable() {
+    localStorage.removeItem(`retention_disabled_${project.id}`);
+    setDisabled(false);
+  }
+
+  if (disabled) {
+    return (
+      <div className="retention-wrap">
+        <button className="stages-toggle-btn retention-toggle" style={{ color: '#bbb', borderTopColor: '#eee' }} onClick={handleEnable}>
+          <span>ציר שימור מושבת</span>
+          <span style={{ marginRight: 'auto', fontSize: 11, color: '#4A7DFF', textDecoration: 'underline' }}>הפעל מחדש</span>
+        </button>
+      </div>
+    );
+  }
 
   const today = new Date().toISOString().slice(0, 10);
   let alertLevel: 'overdue' | 'today' | null = null;
@@ -58,8 +88,10 @@ export default function RetentionChecklist({ project }: Props) {
 
   return (
     <div className="retention-wrap">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
       <button
         className="stages-toggle-btn retention-toggle"
+        style={{ flex: 1 }}
         onClick={() => setOpen(v => !v)}
         aria-expanded={open}
       >
@@ -74,6 +106,12 @@ export default function RetentionChecklist({ project }: Props) {
           <span className="stages-toggle-hint">{doneCount}/{STATION_DEFS.length} תחנות הושלמו</span>
         )}
       </button>
+      <button
+        className="btn-retention-disable"
+        onClick={handleDisable}
+        title="הסתר ציר שימור לפרויקט זה"
+      >✕</button>
+      </div>
 
       <div className={`stages-collapsible${open ? ' open' : ''}`}>
         <div className="retention-list">

@@ -126,6 +126,8 @@ header h1{font-size:18px;font-weight:600;white-space:nowrap}
 .btn-quick-timer{border:none;border-radius:50%;width:28px;height:28px;font-size:13px;cursor:pointer;background:#eef2ff;color:#4A7DFF;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
 .btn-quick-timer:hover{background:#4A7DFF;color:#fff}
 .btn-quick-timer.running{background:#FF3232;color:#fff;animation:pulse .8s infinite}
+.btn-retention-disable{border:none;background:transparent;color:#ccc;font-size:14px;cursor:pointer;padding:2px 5px;flex-shrink:0;line-height:1}
+.btn-retention-disable:hover{color:#FF3232}
 .retention-list{display:flex;flex-direction:column;gap:8px;padding:10px 2px 4px}
 .retention-station{border:0.5px solid #eef2ff;border-radius:8px;padding:10px 12px;background:#fafaf8}
 .retention-station.done{opacity:.55}
