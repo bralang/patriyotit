@@ -24,9 +24,14 @@ export default function LeadsPage() {
   const [search, setSearch] = useState('');
 
   async function load() {
-    const data = await getLeads();
-    setLeads(data);
-    setLoading(false);
+    try {
+      const data = await getLeads();
+      setLeads(data);
+    } catch (e) {
+      console.error('leads load error', e);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => { load(); }, []);
