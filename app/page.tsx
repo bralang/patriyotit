@@ -126,8 +126,7 @@ export default function DashboardPage() {
             {currentWorker && (
               <span className="worker-greeting">👋 שלום, {currentWorker.name}</span>
             )}
-            <Link href="/leads" className="btn-settings" style={{ textDecoration: 'none', color: '#555' }}>🎯 לידים</Link>
-            <Link href="/clients" className="btn-settings" style={{ textDecoration: 'none', color: '#555' }}>👥 לקוחות</Link>
+<Link href="/clients" className="btn-settings" style={{ textDecoration: 'none', color: '#555' }}>👥 לקוחות</Link>
             {currentWorker && (
               <button
                 onClick={() => setShowMine(v => !v)}
