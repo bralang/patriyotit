@@ -12,17 +12,26 @@ CREATE TABLE workers (
   sort_order INTEGER NOT NULL DEFAULT 0
 );
 
--- Auto-create a workers row when a new Supabase Auth user is invited
+-- Link (or create) a workers row when a new Supabase Auth user is invited.
+-- Links to an existing unlinked row with a matching email first, to avoid
+-- creating a duplicate worker when re-inviting someone already in the table.
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.workers (name, email, user_id, sort_order)
-  VALUES (
-    COALESCE(NEW.raw_user_meta_data->>'name', split_part(NEW.email, '@', 1)),
-    NEW.email,
-    NEW.id,
-    (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM public.workers)
-  );
+  UPDATE public.workers
+  SET user_id = NEW.id
+  WHERE email = NEW.email AND user_id IS NULL;
+
+  IF NOT FOUND THEN
+    INSERT INTO public.workers (name, email, user_id, sort_order)
+    VALUES (
+      COALESCE(NEW.raw_user_meta_data->>'name', split_part(NEW.email, '@', 1)),
+      NEW.email,
+      NEW.id,
+      (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM public.workers)
+    );
+  END IF;
+
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
