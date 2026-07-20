@@ -68,9 +68,13 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
 
   async function handleCopyFolderPath() {
     if (!project.local_folder_path) return;
-    await navigator.clipboard.writeText(project.local_folder_path);
-    setFolderCopied(true);
-    setTimeout(() => setFolderCopied(false), 2500);
+    try {
+      await navigator.clipboard.writeText(project.local_folder_path);
+      setFolderCopied(true);
+      setTimeout(() => setFolderCopied(false), 2500);
+    } catch {
+      window.prompt('נתיב התיקייה — סמני הכל (Ctrl+A) והעתיקי (Ctrl+C):', project.local_folder_path);
+    }
   }
 
   async function handleDelete() {
