@@ -194,9 +194,18 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
         <div className="card-links">
           {project.drive_url && <a href={project.drive_url} className="link-btn" target="_blank" rel="noreferrer">📁 תיקיית דרייב</a>}
           {project.local_folder_path && (
-            <a href={`patrifolder:${encodeURIComponent(project.local_folder_path)}`} className="link-btn" title={project.local_folder_path}>
+            <button
+              type="button"
+              className="link-btn"
+              title={project.local_folder_path}
+              onClick={() => {
+                fetch(`http://127.0.0.1:47821/open?path=${encodeURIComponent(project.local_folder_path!)}`).catch(() => {
+                  alert('לא הצלחתי לפתוח את התיקייה — ודאי שתוכנת העזר (patriyotit-folder-helper) פועלת במחשב.');
+                });
+              }}
+            >
               💻 תיקייה במחשב
-            </a>
+            </button>
           )}
           {project.instructions_url && <a href={project.instructions_url} className="link-btn" target="_blank" rel="noreferrer">📄 הוראות</a>}
           {project.template_url && <a href={project.template_url} className="link-btn" target="_blank" rel="noreferrer">📋 קובץ דפוס</a>}
