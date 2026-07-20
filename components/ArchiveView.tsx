@@ -1,9 +1,11 @@
 'use client';
 import type { Project } from '@/lib/types';
+import { MAILING_TYPE_NAME } from '@/lib/types';
 import { archiveProject } from '@/lib/projects';
 import { logActivity } from '@/lib/activity';
 import { useApp } from '@/context/AppContext';
 import HebrewDate from './HebrewDate';
+import RetentionChecklist from './RetentionChecklist';
 
 interface Props {
   projects: Project[];
@@ -33,16 +35,19 @@ export default function ArchiveView({ projects, onUpdate }: Props) {
           ? new Date(p.archived_at).toLocaleDateString('he-IL')
           : '—';
         return (
-          <div key={p.id} className="archive-banner-item">
-            <div>
-              <div className="archive-banner-name">🔒 {p.name}</div>
-              <div className="archive-banner-meta">
-                {p.client?.school_name ?? ''}{p.client?.school_name && p.type ? ' · ' : ''}{p.type?.name ?? ''}
-                {' '}|{' '}הועבר לארכיון: {archivedDate}
-                {p.archived_at && <HebrewDate date={p.archived_at} />}
+          <div key={p.id} style={{ marginBottom: 8 }}>
+            <div className="archive-banner-item" style={{ marginBottom: 0, borderBottomLeftRadius: p.type?.name !== MAILING_TYPE_NAME ? 0 : undefined, borderBottomRightRadius: p.type?.name !== MAILING_TYPE_NAME ? 0 : undefined }}>
+              <div>
+                <div className="archive-banner-name">🔒 {p.name}</div>
+                <div className="archive-banner-meta">
+                  {p.client?.school_name ?? ''}{p.client?.school_name && p.type ? ' · ' : ''}{p.type?.name ?? ''}
+                  {' '}|{' '}הועבר לארכיון: {archivedDate}
+                  {p.archived_at && <HebrewDate date={p.archived_at} />}
+                </div>
               </div>
+              <button className="btn-restore" onClick={() => handleRestore(p)}>♻️ שחזור</button>
             </div>
-            <button className="btn-restore" onClick={() => handleRestore(p)}>♻️ שחזור</button>
+            {p.type?.name !== MAILING_TYPE_NAME && <RetentionChecklist project={p} />}
           </div>
         );
       })}
