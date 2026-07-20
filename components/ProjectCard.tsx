@@ -21,6 +21,7 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
   const { settings, currentWorker, startTimer, stopTimer, activeTimers } = useApp();
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
   const [stagesOpen, setStagesOpen] = useState(false);
+  const [folderCopied, setFolderCopied] = useState(false);
 
   const isMe = currentWorker && project.workers?.some(w => w.id === currentWorker.id);
   const isLocked = project.status?.name.includes('ננעל');
@@ -63,6 +64,13 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
     if (currentWorker) logActivity(`🔄 שינוי סטטוס ל-${status.name}`, project.name, currentWorker.id);
     setStatusDropdownOpen(false);
     onUpdate();
+  }
+
+  async function handleCopyFolderPath() {
+    if (!project.local_folder_path) return;
+    await navigator.clipboard.writeText(project.local_folder_path);
+    setFolderCopied(true);
+    setTimeout(() => setFolderCopied(false), 2500);
   }
 
   async function handleDelete() {
@@ -194,9 +202,9 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
         <div className="card-links">
           {project.drive_url && <a href={project.drive_url} className="link-btn" target="_blank" rel="noreferrer">📁 תיקיית דרייב</a>}
           {project.local_folder_path && (
-            <a href={`openlocal:${encodeURIComponent(project.local_folder_path)}`} className="link-btn" title={project.local_folder_path}>
-              💻 תיקייה במחשב
-            </a>
+            <button type="button" className="link-btn" onClick={handleCopyFolderPath} title={project.local_folder_path}>
+              {folderCopied ? '✅ הועתק! הדביקי בסייר הקבצים (Ctrl+V) ואנטר' : '💻 העתקת נתיב תיקייה'}
+            </button>
           )}
           {project.instructions_url && <a href={project.instructions_url} className="link-btn" target="_blank" rel="noreferrer">📄 הוראות</a>}
           {project.template_url && <a href={project.template_url} className="link-btn" target="_blank" rel="noreferrer">📋 קובץ דפוס</a>}
