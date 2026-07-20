@@ -52,8 +52,8 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
 
   async function handleQuickStatus(status: Status) {
     const wasLocked = isLocked;
-    await setProjectStatus(project.id, status.id);
     const nowLocked = status.name.includes('ננעל');
+    await setProjectStatus(project.id, status.id, nowLocked && !wasLocked);
     if (nowLocked && !wasLocked) {
       showLockToast(project.name);
       if (!isMailing) {

@@ -133,11 +133,13 @@ export async function lockProject(id: number, lock: boolean): Promise<void> {
   if (error) throw error;
 }
 
-export async function setProjectStatus(id: number, statusId: number | null): Promise<void> {
+export async function setProjectStatus(id: number, statusId: number | null, justLocked = false): Promise<void> {
   const supabase = createClient();
+  const fields: { status_id: number | null; locked_at?: string } = { status_id: statusId };
+  if (justLocked) fields.locked_at = new Date().toISOString();
   const { error } = await supabase
     .from('projects')
-    .update({ status_id: statusId })
+    .update(fields)
     .eq('id', id);
   if (error) throw error;
 }
