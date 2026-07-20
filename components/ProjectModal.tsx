@@ -26,6 +26,7 @@ export default function ProjectModal({ projectId, open, onClose, onSave }: Props
   const [statusId, setStatusId] = useState<number | ''>('');
   const [packageId, setPackageId] = useState<number | ''>('');
   const [driveUrl, setDriveUrl] = useState('');
+  const [localFolderPath, setLocalFolderPath] = useState('');
   const [instructionsUrl, setInstructionsUrl] = useState('');
   const [templateUrl, setTemplateUrl] = useState('');
   const [eventDate, setEventDate] = useState('');
@@ -61,6 +62,7 @@ export default function ProjectModal({ projectId, open, onClose, onSave }: Props
       setStatusId(existing.status_id ?? '');
       setPackageId(existing.package_id ?? '');
       setDriveUrl(existing.drive_url ?? '');
+      setLocalFolderPath(existing.local_folder_path ?? '');
       setInstructionsUrl(existing.instructions_url ?? '');
       setTemplateUrl(existing.template_url ?? '');
       setEventDate(existing.event_date ?? '');
@@ -69,7 +71,7 @@ export default function ProjectModal({ projectId, open, onClose, onSave }: Props
       try { setPrice(localStorage.getItem(`price_${existing.id}`) ?? ''); } catch { setPrice(''); }
     } else {
       setName(''); setClientId(''); setContact2(''); setTypeId('');
-      setStatusId(''); setPackageId(''); setDriveUrl('');
+      setStatusId(''); setPackageId(''); setDriveUrl(''); setLocalFolderPath('');
       setInstructionsUrl(''); setTemplateUrl(''); setEventDate('');
       setNotes(''); setPrice(''); setSelectedWorkerIds([]);
     }
@@ -91,6 +93,7 @@ export default function ProjectModal({ projectId, open, onClose, onSave }: Props
         status_id: statusId || null,
         package_id: packageId || null,
         drive_url: driveUrl || null,
+        local_folder_path: localFolderPath || null,
         instructions_url: instructionsUrl || null,
         template_url: templateUrl || null,
         event_date: eventDate || null,
@@ -235,6 +238,10 @@ export default function ProjectModal({ projectId, open, onClose, onSave }: Props
           <div className="form-field full">
             <label>תיקיית דרייב (קישור)</label>
             <input type="url" value={driveUrl} onChange={e => setDriveUrl(e.target.value)} placeholder="https://drive.google.com/..." />
+          </div>
+          <div className="form-field full">
+            <label>תיקייה במחשב (נתיב מקומי)</label>
+            <input value={localFolderPath} onChange={e => setLocalFolderPath(e.target.value)} placeholder="C:\Clients\שם הפרויקט" />
           </div>
           <div className="form-field full">
             <label>קובץ הוראות (קישור)</label>

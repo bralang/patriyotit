@@ -78,6 +78,7 @@ CREATE TABLE projects (
   client_id INTEGER REFERENCES clients(id) ON DELETE SET NULL,
   contact2 TEXT,
   drive_url TEXT,
+  local_folder_path TEXT,
   instructions_url TEXT,
   template_url TEXT,
   notes TEXT,

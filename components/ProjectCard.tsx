@@ -190,9 +190,14 @@ export default function ProjectCard({ project, onEdit, onUpdate }: Props) {
         </div>
       )}
 
-      {(project.drive_url || project.instructions_url || project.template_url) && (
+      {(project.drive_url || project.local_folder_path || project.instructions_url || project.template_url) && (
         <div className="card-links">
           {project.drive_url && <a href={project.drive_url} className="link-btn" target="_blank" rel="noreferrer">📁 תיקיית דרייב</a>}
+          {project.local_folder_path && (
+            <a href={`openlocal:${encodeURIComponent(project.local_folder_path)}`} className="link-btn" title={project.local_folder_path}>
+              💻 תיקייה במחשב
+            </a>
+          )}
           {project.instructions_url && <a href={project.instructions_url} className="link-btn" target="_blank" rel="noreferrer">📄 הוראות</a>}
           {project.template_url && <a href={project.template_url} className="link-btn" target="_blank" rel="noreferrer">📋 קובץ דפוס</a>}
         </div>

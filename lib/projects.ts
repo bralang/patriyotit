@@ -50,6 +50,7 @@ export async function saveProject(
     client_id: project.client_id ?? null,
     contact2: project.contact2 ?? null,
     drive_url: project.drive_url ?? null,
+    local_folder_path: project.local_folder_path ?? null,
     instructions_url: project.instructions_url ?? null,
     template_url: project.template_url ?? null,
     notes: project.notes ?? null,

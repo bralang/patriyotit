@@ -62,6 +62,7 @@ export type Project = {
   client_id: number | null;
   contact2: string | null;
   drive_url: string | null;
+  local_folder_path: string | null;
   instructions_url: string | null;
   template_url: string | null;
   notes: string | null;
